@@ -9,11 +9,10 @@ trigger:
 variables:
   azureRegistry: 'testazurecontaineregistry.azurecr.io'
   awsRegion: 'eu-west-2'
-  ecrRepository: 'your-ecr-repo-name'
   imageTag: 'latest'
-  aksClusterName: 'your-aks-cluster'
-  aksResourceGroup: 'your-aks-resource-group'
-  k8sNamespace: 'your-k8s-namespace'
+  aksResourceGroup: 'KubeGroup'
+  k8sNamespace: 'default'
+  azureSubscription: 'Azure subscription 1'
 
 
 pool:
@@ -31,16 +30,16 @@ jobs:
   - task: Docker@2
     inputs:
       command: 'buildAndPush'
-      containerRegistry: 'my-acr-service-connection'
+      containerRegistry: '$(azureRegistry)'
       repository: '$(azureRegistry)/$(ecrRepository)'
       dockerfile: '$(Build.SourcesDirectory)/api/Dockerfile'
       tags: '$(imageTag)'
     displayName: 'Build and Push API Docker Image to ACR'
     
-  - task: Docker@3
+  - task: Docker@2
     inputs:
       command: 'buildAndPush'
-      containerRegistry: 'my-acr-service-connection'
+      containerRegistry: '$(azureRegistry)'
       repository: '$(azureRegistry)/$(ecrRepository)'
       dockerfile: '$(Build.SourcesDirectory)/web/Dockerfile'
       tags: '$(imageTag)'
@@ -55,7 +54,7 @@ jobs:
   - task: Kubernetes@1
     inputs:
       connectionType: 'Azure Resource Manager'
-      azureSubscription: 'my-azure-service-connection'
+      azureSubscription: '$(azureSubscription)'
       azureResourceGroup: '$(aksResourceGroup)'
       kubernetesCluster: '$(aksClusterName)'
       namespace: '$(k8sNamespace)'
