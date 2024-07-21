@@ -7,7 +7,7 @@ trigger:
 - main
 
 variables:
-  azureRegistry: 'testazurecontaineregistry.azurecr.io'
+  azureRegistry: 'AzureContainerRegistry'
   awsRegion: 'eu-west-2'
   imageTag: 'latest'
   aksResourceGroup: 'KubeGroup'
