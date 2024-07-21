@@ -6,14 +6,71 @@
 trigger:
 - main
 
+variables:
+  azureRegistry: 'testazurecontaineregistry.azurecr.io'
+  awsRegion: 'eu-west-2'
+  ecrRepository: 'your-ecr-repo-name'
+  imageTag: 'latest'
+  aksClusterName: 'your-aks-cluster'
+  aksResourceGroup: 'your-aks-resource-group'
+  k8sNamespace: 'your-k8s-namespace'
+
+
 pool:
   vmImage: ubuntu-latest
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+jobs:
+- job: BuildAndPush
+  displayName: 'Build and Push Docker Image to ACR'
+  pool:
+    vmImage: 'ubuntu-latest'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+  steps:
+  - checkout: self
+
+  - task: Docker@2
+    inputs:
+      command: 'buildAndPush'
+      containerRegistry: 'my-acr-service-connection'
+      repository: '$(azureRegistry)/$(ecrRepository)'
+      dockerfile: '$(Build.SourcesDirectory)/api/Dockerfile'
+      tags: '$(imageTag)'
+    displayName: 'Build and Push API Docker Image to ACR'
+    
+  - task: Docker@3
+    inputs:
+      command: 'buildAndPush'
+      containerRegistry: 'my-acr-service-connection'
+      repository: '$(azureRegistry)/$(ecrRepository)'
+      dockerfile: '$(Build.SourcesDirectory)/web/Dockerfile'
+      tags: '$(imageTag)'
+    displayName: 'Build and Push Web Docker Image to ACR'
+
+- job: DeployToEKS
+  displayName: 'Deploy to EKS'
+  pool:
+    vmImage: 'ubuntu-latest'
+
+  steps:
+  - task: Kubernetes@1
+    inputs:
+      connectionType: 'Azure Resource Manager'
+      azureSubscription: 'my-azure-service-connection'
+      azureResourceGroup: '$(aksResourceGroup)'
+      kubernetesCluster: '$(aksClusterName)'
+      namespace: '$(k8sNamespace)'
+      command: 'apply'
+      useConfigurationFile: true
+      configuration: '$(Build.SourcesDirectory)/k8s/deployment.yaml'
+    displayName: 'Deploy to EKS'
+
+  - task: AWSCLI@1
+    inputs:
+      awsCredentials: 'AWS'
+      regionName: '$(awsRegion)'
+    displayName: 'Configure AWS Credentials'
+
+  - script: |
+      aws eks update-kubeconfig --region $(awsRegion) --name $(eksClusterName)
+      kubectl set image deployment/$(deploymentName) $(containerName)=$(azureRegistry)/$(ecrRepository):$(imageTag) --namespace $(k8sNamespace)
+    displayName: 'Update Kubernetes Deployment'
