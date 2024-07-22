@@ -48,7 +48,7 @@ jobs:
 - job: DeployToEKS
   displayName: 'Deploy to EKS'
   pool:
-    vmImage: 'ubuntu-latest'
+    name: default
 
   steps:
   - task: Kubernetes@1
