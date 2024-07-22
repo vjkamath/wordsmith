@@ -22,7 +22,7 @@ jobs:
 - job: BuildAndPush
   displayName: 'Build and Push Docker Image to ACR'
   pool:
-    vmImage: 'ubuntu-latest'
+    name: default
 
   steps:
   - checkout: self
