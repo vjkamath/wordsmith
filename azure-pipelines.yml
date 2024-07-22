@@ -4,72 +4,69 @@
 # https://aka.ms/yaml
 
 trigger:
-- main
+  - main
 
 variables:
-  azureRegistry: 'AzureContainerRegistry'
-  awsRegion: 'eu-west-2'
-  imageTag: 'latest'
-  aksResourceGroup: 'KubeGroup'
-  k8sNamespace: 'default'
-  azureSubscription: 'Azure subscription 1'
-
+  azureRegistry: "AzureContainerRegistry"
+  awsRegion: "eu-west-2"
+  imageTag: "latest"
+  aksResourceGroup: "KubeGroup"
+  k8sNamespace: "default"
+  azureSubscription: "Azure subscription 1"
 
 pool:
   vmImage: ubuntu-latest
 
 jobs:
-- job: BuildAndPush
-  displayName: 'Build and Push Docker Image to ACR'
-  pool:
-    name: default
+  - job: BuildAndPush
+    displayName: "Build and Push Docker Image to ACR"
+    pool:
+      name: default
 
-  steps:
-  - checkout: self
+    steps:
+      - task: Docker@2
+        inputs:
+          command: "buildAndPush"
+          containerRegistry: "$(azureRegistry)"
+          repository: "$(azureRegistry)/$(ecrRepository)"
+          dockerfile: "$(Build.SourcesDirectory)/api/Dockerfile"
+          tags: "$(imageTag)"
+        displayName: "Build and Push API Docker Image to ACR"
 
-  - task: Docker@2
-    inputs:
-      command: 'buildAndPush'
-      containerRegistry: '$(azureRegistry)'
-      repository: '$(azureRegistry)/$(ecrRepository)'
-      dockerfile: '$(Build.SourcesDirectory)/api/Dockerfile'
-      tags: '$(imageTag)'
-    displayName: 'Build and Push API Docker Image to ACR'
-    
-  - task: Docker@2
-    inputs:
-      command: 'buildAndPush'
-      containerRegistry: '$(azureRegistry)'
-      repository: '$(azureRegistry)/$(ecrRepository)'
-      dockerfile: '$(Build.SourcesDirectory)/web/Dockerfile'
-      tags: '$(imageTag)'
-    displayName: 'Build and Push Web Docker Image to ACR'
+      - task: Docker@2
+        inputs:
+          command: "buildAndPush"
+          containerRegistry: "$(azureRegistry)"
+          repository: "$(azureRegistry)/$(ecrRepository)"
+          dockerfile: "$(Build.SourcesDirectory)/web/Dockerfile"
+          tags: "$(imageTag)"
+        displayName: "Build and Push Web Docker Image to ACR"
 
-- job: DeployToEKS
-  displayName: 'Deploy to EKS'
-  pool:
-    name: default
+  - job: DeployToEKS
+    displayName: "Deploy to EKS"
+    pool:
+      name: default
 
-  steps:
-  - task: Kubernetes@1
-    inputs:
-      connectionType: 'Azure Resource Manager'
-      azureSubscription: '$(azureSubscription)'
-      azureResourceGroup: '$(aksResourceGroup)'
-      kubernetesCluster: '$(aksClusterName)'
-      namespace: '$(k8sNamespace)'
-      command: 'apply'
-      useConfigurationFile: true
-      configuration: '$(Build.SourcesDirectory)/k8s/deployment.yaml'
-    displayName: 'Deploy to EKS'
+    steps:
+      - task: Kubernetes@1
+        inputs:
+          connectionType: "Azure Resource Manager"
+          azureSubscription: "$(azureSubscription)"
+          azureResourceGroup: "$(aksResourceGroup)"
+          kubernetesCluster: "$(aksClusterName)"
+          namespace: "$(k8sNamespace)"
+          command: "apply"
+          useConfigurationFile: true
+          configuration: "$(Build.SourcesDirectory)/k8s/deployment.yaml"
+        displayName: "Deploy to EKS"
 
-  - task: AWSCLI@1
-    inputs:
-      awsCredentials: 'AWS'
-      regionName: '$(awsRegion)'
-    displayName: 'Configure AWS Credentials'
+      - task: AWSCLI@1
+        inputs:
+          awsCredentials: "AWS"
+          regionName: "$(awsRegion)"
+        displayName: "Configure AWS Credentials"
 
-  - script: |
-      aws eks update-kubeconfig --region $(awsRegion) --name $(eksClusterName)
-      kubectl set image deployment/$(deploymentName) $(containerName)=$(azureRegistry)/$(ecrRepository):$(imageTag) --namespace $(k8sNamespace)
-    displayName: 'Update Kubernetes Deployment'
+      - script: |
+          aws eks update-kubeconfig --region $(awsRegion) --name $(eksClusterName)
+          kubectl set image deployment/$(deploymentName) $(containerName)=$(azureRegistry)/$(ecrRepository):$(imageTag) --namespace $(k8sNamespace)
+        displayName: "Update Kubernetes Deployment"
