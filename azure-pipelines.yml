@@ -12,7 +12,7 @@ variables:
   imageTag: "latest"
   aksResourceGroup: "KubeGroup"
   k8sNamespace: "default"
-  azureSubscription: "Azure subscription 1"
+  azureSubscription: "AWS"
   ecrRepository: "testazurecontaineregistry"
 
 pool:
