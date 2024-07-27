@@ -13,6 +13,7 @@ variables:
   aksResourceGroup: "KubeGroup"
   k8sNamespace: "default"
   azureSubscription: "Azure subscription 1"
+  ecrRepository: "testazurecontaineregistry"
 
 pool:
   vmImage: ubuntu-latest
