@@ -46,6 +46,7 @@ jobs:
     displayName: "Deploy to EKS"
     pool:
       name: default
+    dependsOn: BuildAndPush
 
     steps:
       - task: Kubernetes@1
