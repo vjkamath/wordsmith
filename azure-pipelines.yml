@@ -66,6 +66,7 @@ jobs:
         inputs:
           awsCredentials: "AWS"
           regionName: "$(awsRegion)"
+          awsCommand: "aws s3 ls"
         displayName: "Configure AWS Credentials"
 
       - script: |
