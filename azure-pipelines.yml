@@ -59,7 +59,7 @@ jobs:
           namespace: "$(k8sNamespace)"
           command: "apply"
           useConfigurationFile: true
-          configuration: "$(Build.SourcesDirectory)/k8s/deployment.yaml"
+          configuration: "$(Build.SourcesDirectory)/."
         displayName: "Deploy to EKS"
 
       - task: AWSCLI@1
