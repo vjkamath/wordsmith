@@ -62,15 +62,4 @@ jobs:
           configuration: "$(Build.SourcesDirectory)/deployment.yaml"
         displayName: "Deploy to EKS"
 
-      - task: AWSCLI@1
-        inputs:
-          awsCredentials: "AWS"
-          regionName: "$(awsRegion)"
-          awsCommand: "aws s3"
-          awsSubCommand: "ls"
-        displayName: "Configure AWS Credentials"
-
-      - script: |
-          aws eks update-kubeconfig --region $(awsRegion) --name $(eksClusterName)
-          kubectl set image deployment/$(deploymentName) $(containerName)=$(azureRegistry)/$(ecrRepository):$(imageTag) --namespace $(k8sNamespace)
-        displayName: "Update Kubernetes Deployment"
+    
