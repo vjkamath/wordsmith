@@ -53,7 +53,7 @@ jobs:
       - task: Kubernetes@1
         inputs:
           connectionType: "Azure Resource Manager"
-          azureSubscription: "$(azureSubscription)"
+          kubernetesServiceEndpoint: "azure-eks"
           azureResourceGroup: "$(aksResourceGroup)"
           kubernetesCluster: "$(aksClusterName)"
           namespace: "$(k8sNamespace)"
