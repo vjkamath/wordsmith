@@ -52,7 +52,7 @@ jobs:
     steps:
       - task: Kubernetes@1
         inputs:
-          connectionType: "Azure Resource Manager"
+          connectionType: "Kubernetes Service Connection"
           kubernetesServiceEndpoint: "azure-eks"
           azureResourceGroup: "$(aksResourceGroup)"
           kubernetesCluster: "$(aksClusterName)"
