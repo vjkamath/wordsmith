@@ -1,26 +1,16 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: blog-container
 metadata:
   name: blog-container
+  labels:
+    name: blog-container
 spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: blog-container
-  template:
-    metadata:
-      labels:
-        app: blog-container
-    spec:
-      containers:
-        - name: blog-container
-          image: testazurecontaineregistry.azurecr.io/testazurecontaineregistry:latest
-          ports:
-            - containerPort: 80
-          resources:
-            limits:
-              cpu: 500m
-              memory: 512Mi
-            requests:
-              cpu: 250m
-              memory: 256Mi
+  containers:
+    - name: blog-container
+      image: testazurecontaineregistry.azurecr.io/testazurecontaineregistry:latest
+      resources:
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
+      ports:
+        - containerPort: 80
