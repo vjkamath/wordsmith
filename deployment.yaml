@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: example-deployment
+  name: blog-container
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: example
+      app: blog-container
   template:
     metadata:
       labels:
-        app: example
+        app: blog-container
     spec:
       containers:
-        - name: example
-          image: nginx
+        - name: blog-container
+          image: testazurecontaineregistry.azurecr.io/testazurecontaineregistry:latest
           ports:
             - containerPort: 80
           resources:
